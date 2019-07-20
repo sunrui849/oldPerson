@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>老年人中医药健康管理服务表</title>
+    <script src="https://apps.bdimg.com/libs/jquery/2.1.4/jquery.min.js"></script>
+    <style>
+        table td{border:1px solid #000}
+        body{
+            background-color: #C7EDCC;
+        }
+    </style>
+</head>
+<body>
+<h1>老年人中医药健康管理服务计算器</h1>
+    <div id="body">
+
+    </div>
+    <div style="margin: 15px;">
+        <input type="button" value="提交" onclick="submit()">
+    </div>
+    <div id="result" style="text-align: center;">
+
+    </div>
+</body>
+<script>
+    var question = ["1.您精力充沛吗？(指精神头足，乐于做事)",
+        "2.您容易疲乏吗？(指体力如何，是否稍微活动一下或做一点家务劳动就感到累)",
+        "3.您容易气短，呼吸短促，接不上气吗？",
+        "4.您说话声音低弱无力？(指说话没有力气)","5.您感到闷闷不乐、情绪低沉吗？(指心情不愉快，情绪低落)","6.您容易精神紧张、焦虑不安？(指遇事是否心情紧张)",
+        "7.您因为生活状态改变而感到孤独、失落吗？","8.您容易感到害怕或受到惊吓吗？","9.您感到身体超重不轻松吗？(感觉身体沉重)[BMI指数=体重(kg)身高2(m)",
+        "10.您眼睛干涩吗？","11.您手脚发凉吗？(不包含因周围温度低或穿的少导致是手脚发冷)","12.您胃脘部、背部或腰膝部怕冷吗？(指上腹部、背部、腰部或膝关节等，有一处或多处怕冷)",
+        "13.您比一般人耐受不了寒冷吗?(指比别人容易害怕冬天或是夏天的冷空调、电扇等)","14.您容易感冒吗？(指每年感冒次数)","15.您有感冒时也会鼻塞，流鼻涕吗？",
+        "16.您有口粘口腻，或睡觉打鼾吗？","17.您容易过敏(对药物、食物、气味、花粉或在季节交替、气候变化时)吗？","18.你的皮肤容易起荨麻疹吗？(包括风团、风疹块、风疙瘩)",
+        "19.您的皮肤在不知不觉中辉出现青紫瘀斑、皮下出血吗?(指皮肤在没外伤的情况下出现青一块紫一块的情况)","20.您的皮肤一抓就红，并出现抓痕吗？(指被指甲或钝物划过后皮肤的反应)",
+        "21.您皮肤或口唇干吗？","22.您有肢体麻木或固定部位疼痛的感觉吗？","23.您面部或鼻部有油腻感或者油亮发光吗？(指脸上或鼻子)","24.您面色或目眶晦暗，或出现褐色斑块/斑点吗？",
+        "25.您有皮肤湿疹、疮疖吗？","26.您感到口干咽燥、总想喝水吗？","27.您感到口苦或嘴里有异味吗？(指口苦或口臭)","28.您腹部肥大吗？(指腹部脂肪肥厚)",
+        "29.您吃(喝)凉的东西辉感到不舒服或怕吃(喝)凉的东西吗？(指不喜欢吃凉的食物，或吃了凉的食物后会不舒服)","30.您有大便黏滞不爽、解不尽的感觉吗？(大便容易粘在马桶或便坑上)",
+        "31.您容易大便干燥吗？","32.您有舌苔厚腻或有舌苔厚厚的感觉吗？(如自我感觉不清楚可由调查员观察后填写)","33.您舌下有静脉瘀紫或增粗吗？(可由调查员辅助观察后填写)"];
+    var answer = ["没有(根本不/从来没有)","很少(有一点/偶尔)","有时(有些/少数时间)","经常(相当/多数时间)","总是(非常/每天)"];
+    var type = {
+        "气虚质" : [2,3,4,14],
+        "阳虚质" : [11,12,13,29],
+        "阴虚质" : [10,21,26,31],
+        "痰湿质" : [9,16,28,32],
+        "湿热质" : [23,25,27,30],
+        "血瘀质" : [19,22,24,33],
+        "气郁质" : [5,6,7,8],
+        "特禀质" : [15,17,18,20],
+        "和平质" : [1,2,4,5,13]
+    };
+    var cross = {1:5,2:4,3:3,4:2,5:1};
+    var table = "<table border='0' cellspacing='0' cellpadding='0'>";
+    var thead = "<thead><th><tr><td> </td>";
+    for (var i=0; i<answer.length;i++){
+        thead += "<td>" + answer[i] + "</td>";
+    }
+    thead += "</tr></th></thead>";
+    table += thead;
+
+    // tbody
+    tbody = "<tbody>";
+    for (var i=0; i<question.length;i++){
+        tbody += "<tr><td width='250px' height='50px'>" + question[i] + "</td>";
+        for (var ii = 1; ii <= answer.length; ii++){
+            tbody += "<td onclick='clickTd(this)'><input type='radio' value='" +ii+ "' name='question" + (i+1) + "'></td>";
+        }
+        tbody += "</tr>";
+    }
+    tbody += "</tbody>";
+
+    table += tbody;
+
+    $("#body").append(table);
+    function clickTd(dom){
+        $(dom).children()[0].checked=true;
+    }
+
+    function submit(){
+        var res = {};
+        for(var key in type){
+            if (key == "和平质"){
+                continue;
+            }
+            res[key] = 0;
+            var arr = type[key];
+            for (var i =0;i<arr.length;i++){
+                var num = $("input[name='question" + arr[i] + "']:checked").val() * 1;
+                if (isNaN(num)){
+                    alert("第" + arr[i] + "题没选，请选择！");
+                    return;
+                }
+                res[key] += num;
+            }
+        }
+        res["和平质"] = 0;
+        var hpzArr = type["和平质"];
+        for (var i =0;i<hpzArr.length;i++){
+            var num = $("input[name='question" + hpzArr[i] + "']:checked").val() * 1;
+            if (isNaN(num)) {
+                alert("第" + arr[i] + "题没选，请选择！");
+                return;
+            }
+            if (hpzArr[i] != 1){
+                num = cross[num];
+            }
+
+            res["和平质"] += num;
+        }
+        var map = getResult(res);
+        var tab = "<table border='0' cellspacing='0' cellpadding='0'>";
+        var tr1="<tr><td>体质</td>";
+        var tr2="<tr><td>结果</td>";
+        var tr3="<tr><td>得分</td>";
+        for(var key in map){
+            tr1 += "<td>" + key + "</td>";
+            tr2 += "<td>" + map[key] + "</td>";
+            tr3 += "<td>" + res[key] + "</td>";
+        }
+        tr1 +="</tr>";
+        tr2 +="</tr>";
+        tr3 +="</tr>";
+
+        tab += tr1;
+        tab += tr2;
+        tab += tr3;
+        tab += "</table>";
+        $("#result").empty();
+        $("#result").append(tab);
+    }
+
+    function getResult(res){
+        var map = {};
+        for(var key in res) {
+            if (key == "和平质"){
+                continue;
+            }
+            if (res[key] >= 11){
+                map[key] = "是";
+            }else if (res[key] == 9 || res[key] == 10){
+                map[key] = "倾向是";
+            }else if (res[key] <= 8){
+                map[key] = "否";
+            }
+        }
+
+        if (res["和平质"] < 17){
+            map["和平质"] = "否";
+        }else if (checkMap(res) == 1){
+            map["和平质"] = "是";
+        }else if (checkMap(res) == 2){
+            map["和平质"] = "倾向是";
+        }else{
+            map["和平质"] = "否";
+        }
+        return map;
+    }
+
+    function checkMap(res){
+        var result = 1;
+        for(var key in res) {
+            if (key == "和平质"){
+                continue;
+            }
+            if (res[key] > 8){
+                result = -1;
+            }
+        }
+        if (result != -1){
+            return 1;
+        }
+
+        for(var key in res) {
+            if (key == "和平质"){
+                continue;
+            }
+            if (res[key] > 10){
+                result = -1;
+            }
+        }
+        if (result != -1){
+            return 2;
+        }
+        return -1;
+    }
+</script>
+</html>
